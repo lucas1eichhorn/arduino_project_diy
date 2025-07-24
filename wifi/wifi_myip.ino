@@ -5,7 +5,7 @@ const char* password = "pass";
 //String host = "api.ipify.org";
 //String endpoint = "/?format=json";
 String host = "api.openweathermap.org";
-String endpoint = "/data/2.5/weather?q=Madrid&appid=c64af17255102cceb8decba2a5ada517";
+String endpoint = "/data/2.5/weather?q=Madrid&appid=API_KEY";
 
 
 unsigned long lastRequestTime = 0;
