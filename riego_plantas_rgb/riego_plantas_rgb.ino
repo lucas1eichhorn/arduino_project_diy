@@ -2,7 +2,9 @@
 Arduino_DataBus *bus = new Arduino_HWSPI(9 /* DC */, 10 /* CS */);
 Arduino_GFX *gfx = new Arduino_ST7796(bus, 8 /* RESET */,0,true);
 
+#define ONE_DAY_MILLIS 86400000UL // 24 * 60 * 60 * 1000 ms
 #define NUM_SENSORS 4
+
 const int SIGNAL_PINS[NUM_SENSORS] = {A1, A2, A3, A4};
 const int RELAY_PINS[NUM_SENSORS]  = {2, 3, 4, 5};
 const char* SENSOR_ID[NUM_SENSORS] = {"1", "2", "3","4"};
@@ -38,7 +40,7 @@ void loop() {
   for (int i = 0; i < NUM_SENSORS; i++) {
     int value = read_humidity(i);
     check_and_water(i, value);
-     delay(3000); // Water for 3 seconds (adjustable)
+    delay(3000); 
   }
 
   delay(5000); // Run the loop every N second
@@ -67,7 +69,19 @@ void check_and_water(int sensor_num, int value) {
     return;
   }
 
-  if (value > 400) { // Sensor reads dry soil
+  if (value > 400) { 
+    // Sensor reads dry soil
+    if (now - lastWateringTime[sensor_num] >= ONE_DAY_MILLIS) {
+      Serial.print("🌵 Sensor ");
+      Serial.print(sensor_num);
+      Serial.println(" is dry → watering now.");
+      water_once(sensor_num);
+      lastWateringTime[sensor_num] = now;
+    } else {
+      Serial.print("🕒 Sensor ");
+      Serial.print(sensor_num);
+      Serial.println(" is dry, but has already been watered.");
+    }
       Serial.print("🌵 Sensor ");
       Serial.print(SENSOR_ID[sensor_num]);
       Serial.println(" is dry → watering now.");
@@ -83,7 +97,7 @@ void check_and_water(int sensor_num, int value) {
 
 void water_once(int sensor_num) {
   digitalWrite(RELAY_PINS[sensor_num], LOW);  // ON
-  delay(2000); // Water for 3 seconds (adjustable)
+  delay(4000); // Water for some seconds (adjustable)
   digitalWrite(RELAY_PINS[sensor_num], HIGH); // OFF
 }
 
